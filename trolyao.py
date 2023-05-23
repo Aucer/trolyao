@@ -8,8 +8,8 @@ from datetime import datetime
 import wikipedia
 
 now = datetime.now()
-# initialize the recognizer
-r = sr.Recognizer()
+# ghi lại âm thanh 
+recognizer = sr.Recognizer()
 
 def speak(text):
     tts = gTTS(text=text, lang='vi')
@@ -20,47 +20,51 @@ def speak(text):
 
 while True:
 	with sr.Microphone() as source:
-		# read the audio data from the default microphone
-		audio_data = r.record(source, duration=5)
-		#print("Regnizing...")
-		# convert speech to text
-		try:
-			text = r.recognize_google(audio_data, language="vi")
-		except:
-			text = ""
-		print(text)
+	    print("Adjusting noise ")
+	    recognizer.adjust_for_ambient_noise(source, duration=1)  #thời gian điều chỉnh tiếng
+	    print("Recording for 4 seconds")
+	    recorded_audio = recognizer.listen(source, timeout=4)  #thời gian nghe 
+	    print("Done recording")
 
-		if text == "":
-			robot_brain = "Sủa đê!"
-			speak(robot_brain)
-			print(robot_brain)
-		elif "Xin chào" in text:
-			robot_brain = "Tao chào mày"
-			speak(robot_brain)
-			print(robot_brain)
-		elif "ngày bao nhiêu" in text:
-			robot_brain = now.strftime("hôm nay là ngày %d/%m/%Y")
-			speak(robot_brain)
-			print(robot_brain)
-		elif "mấy giờ" in text:
-			robot_brain = now.strftime("bây giờ là %H:%M:%S")
-			speak(robot_brain)
-			print(robot_brain)
-		elif "Goodbye Trần Quỳnh Mai" in text:
-			robot_brain = "Cút!"
-			speak(robot_brain)
-			print(robot_brain)
-			break
-		elif text:
-			wikipedia.set_lang("vi")
-			robot_brain = wikipedia.summary(text, sentences=1)
-			speak(robot_brain)
-			print(robot_brain)
-			break
-		
-		else:
-			robot_brain ="Mở cái mồm ra"
-			speak(robot_brain)
+	 #Nhận dạng âm thanh
+	try:
+	    print("Recognizing the text")
+	    text = recognizer.recognize_google(recorded_audio, language="vi") # nhận dạng âm thanh và ngôn ngữ
+	    print("Decoded Text : {}".format(text))
+	except Exception as text:
+		text = ""
+	print(text)
+
+	if text == "":
+		robot_brain = "Nói đê!"
+		speak(robot_brain)
+		print(robot_brain)
+	elif "Xin chào" in text:
+		robot_brain = "Tao chào mày"
+		speak(robot_brain)
+		print(robot_brain)
+	elif "ngày bao nhiêu" in text:
+		robot_brain = now.strftime("hôm nay là ngày %d/%m/%Y")
+		speak(robot_brain)
+		print(robot_brain)
+	elif "mấy giờ" in text:
+		robot_brain = now.strftime("bây giờ là %H:%M:%S")
+		speak(robot_brain)
+		print(robot_brain)
+	elif "Hẹn gặp lại" in text:
+		robot_brain = "Cút!"
+		speak(robot_brain)
+		print(robot_brain)
+		break
+	elif text:
+		wikipedia.set_lang("vi")
+		robot_brain = wikipedia.summary(text, sentences=1)
+		speak(robot_brain)
+		print(robot_brain)
+		#break
+	else:
+		robot_brain ="Tao không hiểu"
+		speak(robot_brain)
 
 		
 
